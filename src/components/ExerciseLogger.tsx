@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Check, Plus, Timer, History, Trash2, CheckCircle2, MessageSquare } from "lucide-react"
+import { Check, Plus, Timer, Trash2, CheckCircle2, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logSet } from '../app/dashboard/workout/[id]/actions'
 import { toast } from "sonner"
-import { RestTimer } from "@/components/RestTimer"
 import { successHaptic } from "@/utils/haptics"
 import { VideoDialog } from "@/components/VideoDialog"
 import { ExerciseHistorySheet } from "@/components/ExerciseHistorySheet"
@@ -42,7 +41,6 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
     const [weight, setWeight] = useState(exercise.target_weight ? exercise.target_weight.replace(/\D/g,'') : '')
     const [reps, setReps] = useState(exercise.reps.split('-')[0])
     const [isSaving, setIsSaving] = useState(false)
-    const [isTimerOpen, setIsTimerOpen] = useState(false)
 
     useEffect(() => {
         setCurrentSet(getNextSetNumber(sets))
@@ -81,7 +79,6 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
             
             toast.success(`Set ${newSet.set_number} guardado`)
             successHaptic()
-            setIsTimerOpen(true)
         } catch (error) {
             toast.error("Error al guardar")
             setSets(sets) 
@@ -302,12 +299,7 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
                 </div>
             )}
 
-            {/* Rest Timer */}
-            <RestTimer 
-                isOpen={isTimerOpen} 
-                onClose={() => setIsTimerOpen(false)}
-                initialSeconds={exercise.rest_seconds || 90}
-            />
+
         </div>
     )
 }
