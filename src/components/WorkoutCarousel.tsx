@@ -87,7 +87,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
             onTouchEnd={handleTouchEnd}
         >
             {/* Unified header: back button + workout name + progress dots */}
-            <div className="sticky top-14 md:top-0 z-10 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md pt-2 pb-4 -mt-2">
+            <div className="sticky top-14 md:top-0 z-10 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md pt-2 pb-4 -mt-6">
                 {/* Back + Workout name row */}
                 <div className="flex items-center justify-center relative mb-2 min-h-6">
                     <button
@@ -102,7 +102,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                     </p>
                 </div>
                 {/* Progress dots */}
-                <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="flex items-center justify-center gap-1.5 mb-2 flex-wrap max-w-[280px] mx-auto">
                     {slides.map((slide, i) => (
                         <button
                             key={i}
@@ -110,8 +110,8 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                             className={cn(
                                 "transition-all duration-300 rounded-full",
                                 i === currentIndex
-                                    ? slide.type === 'superset' ? "w-10 h-2 bg-purple-500" : "w-7 h-2 bg-primary"
-                                    : slide.type === 'superset' ? "w-3 h-2 bg-purple-300 dark:bg-purple-700" : "w-2 h-2 bg-slate-300 dark:bg-slate-700"
+                                    ? slide.type === 'superset' ? "w-8 h-1.5 bg-purple-500" : "w-6 h-1.5 bg-primary"
+                                    : slide.type === 'superset' ? "w-2.5 h-1.5 bg-purple-300 dark:bg-purple-700" : "w-1.5 h-1.5 bg-slate-300 dark:bg-slate-700"
                             )}
                         />
                     ))}
