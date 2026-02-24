@@ -87,9 +87,9 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
             onTouchEnd={handleTouchEnd}
         >
             {/* Unified header: back button + workout name + progress dots */}
-            <div className="sticky top-14 md:top-0 z-10 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md pt-1 pb-4">
+            <div className="sticky top-14 md:top-0 z-10 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md pt-2 pb-4 -mt-2">
                 {/* Back + Workout name row */}
-                <div className="flex items-center justify-center relative mb-2">
+                <div className="flex items-center justify-center relative mb-2 min-h-6">
                     <button
                         onClick={() => router.push('/dashboard')}
                         className="hidden md:flex absolute left-0 items-center gap-0.5 text-primary font-medium text-sm active:opacity-60 transition-opacity"
@@ -97,7 +97,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                         <ChevronLeft className="h-5 w-5" />
                         <span>Volver</span>
                     </button>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.18em]">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] px-12 text-center line-clamp-1">
                         {workoutName}
                     </p>
                 </div>

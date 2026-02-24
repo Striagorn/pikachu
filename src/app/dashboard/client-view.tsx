@@ -31,15 +31,15 @@ export default async function ClientView({ user }: { user: any }) {
   return (
     <div className="space-y-6 pb-32">
       {/* ═══ HERO BANNER ═══ */}
-      <div className="relative overflow-hidden rounded-[28px] mx-2 bg-gradient-to-br from-violet-100 via-purple-50 to-indigo-100 dark:from-violet-950/40 dark:via-purple-900/30 dark:to-indigo-950/40 p-6 shadow-lg shadow-purple-200/30 dark:shadow-purple-900/20 border border-purple-100/60 dark:border-purple-800/30">
+      <div className="relative overflow-hidden rounded-[24px] mx-3 bg-gradient-to-br from-violet-100 via-purple-50 to-indigo-100 dark:from-violet-950/40 dark:via-purple-900/30 dark:to-indigo-950/40 p-5 shadow-sm shadow-purple-200/30 dark:shadow-purple-900/20 border border-purple-100/60 dark:border-purple-800/30">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-purple-300/30 dark:bg-purple-500/15 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-300/25 dark:bg-blue-500/10 rounded-full blur-3xl -ml-8 -mb-8 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-24 h-24 bg-purple-300/30 dark:bg-purple-500/15 rounded-full blur-2xl -mr-6 -mt-6 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-300/25 dark:bg-blue-500/10 rounded-full blur-2xl -ml-6 -mb-6 pointer-events-none" />
 
         <div className="relative z-10">
           {/* Greeting */}
-          <p className="text-purple-500 dark:text-purple-400 text-sm font-medium mb-1">{greeting},</p>
-          <h1 className="text-[32px] font-bold text-slate-900 dark:text-white tracking-tight leading-tight mb-4">
+          <p className="text-purple-500 dark:text-purple-400 text-xs font-medium mb-1">{greeting},</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight mb-3">
             {firstName}
           </h1>
 
@@ -47,21 +47,21 @@ export default async function ClientView({ user }: { user: any }) {
           <div className="flex items-center gap-2 flex-wrap">
             {/* Streak pill */}
             {streak.streak >= 2 && (
-              <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-orange-200/60 dark:border-orange-500/20 shadow-sm">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-sm shadow-orange-400/30">
-                  <Flame className="w-5 h-5 text-white" strokeWidth={2.5} />
+              <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-orange-200/60 dark:border-orange-500/20 shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-sm shadow-orange-400/30">
+                  <Flame className="w-4 h-4 text-white" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-slate-400 dark:text-white/50 font-medium">Racha</p>
-                  <p className="text-sm font-bold text-slate-800 dark:text-white">{streak.streak} días</p>
+                  <p className="text-[10px] text-slate-400 dark:text-white/50 font-medium leading-none mb-0.5">Racha</p>
+                  <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">{streak.streak} días</p>
                 </div>
               </div>
             )}
 
             {/* Weekly progress pill */}
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-purple-100/50 dark:border-white/[0.06] shadow-sm">
-              <div className="relative w-9 h-9">
-                <svg className="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-purple-100/50 dark:border-white/[0.06] shadow-sm">
+              <div className="relative w-8 h-8">
+                <svg className="w-8 h-8 -rotate-90" viewBox="0 0 36 36">
                   <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(139,92,246,0.15)" strokeWidth="3" />
                   <circle
                     cx="18" cy="18" r="15.5" fill="none"
@@ -76,35 +76,35 @@ export default async function ClientView({ user }: { user: any }) {
                     </linearGradient>
                   </defs>
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-purple-700 dark:text-white">
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-purple-700 dark:text-white">
                   {weeklyProgress.count}
                 </span>
               </div>
               <div>
-                <p className="text-[11px] text-slate-400 dark:text-white/50 font-medium">Semanal</p>
-                <p className="text-sm font-bold text-slate-800 dark:text-white">{weeklyProgress.count}/{weeklyProgress.goal}</p>
+                <p className="text-[10px] text-slate-400 dark:text-white/50 font-medium leading-none mb-0.5">Semanal</p>
+                <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">{weeklyProgress.count}/{weeklyProgress.goal}</p>
               </div>
             </div>
 
             {/* Credits pill */}
             {subscription ? (
-              <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-purple-100/50 dark:border-white/[0.06] shadow-sm">
-                <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-amber-500 dark:text-amber-400" strokeWidth={2.5} />
+              <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-purple-100/50 dark:border-white/[0.06] shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-amber-500 dark:text-amber-400" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-slate-400 dark:text-white/50 font-medium">Créditos</p>
-                  <p className="text-sm font-bold text-slate-800 dark:text-white">{subscription.credits_remaining}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-white/50 font-medium leading-none mb-0.5">Créditos</p>
+                  <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">{subscription.credits_remaining}</p>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-purple-100/50 dark:border-white/[0.06] shadow-sm">
-                <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-slate-500 dark:text-slate-400" strokeWidth={2.5} />
+              <div className="flex items-center gap-2 bg-white/80 dark:bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-purple-100/50 dark:border-white/[0.06] shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                  <Trophy className="w-4 h-4 text-slate-500 dark:text-slate-400" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="text-[11px] text-slate-400 dark:text-white/50 font-medium">Total</p>
-                  <p className="text-sm font-bold text-slate-800 dark:text-white">{streak.total}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-white/50 font-medium leading-none mb-0.5">Total</p>
+                  <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">{streak.total}</p>
                 </div>
               </div>
             )}
