@@ -92,7 +92,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                 <div className="flex items-center justify-center relative mb-2">
                     <button
                         onClick={() => router.push('/dashboard')}
-                        className="absolute left-0 flex items-center gap-0.5 text-primary font-medium text-sm active:opacity-60 transition-opacity"
+                        className="hidden md:flex absolute left-0 items-center gap-0.5 text-primary font-medium text-sm active:opacity-60 transition-opacity"
                     >
                         <ChevronLeft className="h-5 w-5" />
                         <span>Volver</span>

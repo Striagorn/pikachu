@@ -128,7 +128,7 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
                     )}
 
                     <div className="flex-1 min-w-0">
-                        <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize leading-tight truncate">
+                        <h3 className="text-[20px] md:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize leading-tight line-clamp-2 text-balance break-words">
                             {exercise.exercise_name}
                         </h3>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
