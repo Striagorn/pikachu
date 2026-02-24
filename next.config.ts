@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // @ts-ignore: Silence the webpack vs turbopack error on Vercel
+  turbopack: {}
 };
 
 // next-pwa uses webpack — only wrap in production to avoid Turbopack conflict in dev
