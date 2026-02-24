@@ -114,11 +114,12 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
     return (
         <div className="space-y-4">
             {/* Header - Apple Style */}
-            <div className="flex items-center justify-between mb-4 px-1">
-                <div className="flex items-start gap-4 flex-1">
+            <div className="flex flex-col gap-3 mb-4 px-1">
+                {/* Title and Image Row */}
+                <div className="flex gap-4 w-full">
                     {/* Exercise Image Thumbnail */}
                     {exercise.image_url && (
-                        <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm">
                             <img 
                                src={exercise.image_url} 
                                alt={exercise.exercise_name}
@@ -126,12 +127,15 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
                             />
                         </div>
                     )}
-
-                    <div className="flex-1 min-w-0">
-                        <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize leading-tight break-words">
+                    
+                    {/* Title Block */}
+                    <div className="flex-1">
+                        <h3 className="text-[22px] md:text-2xl font-bold text-slate-900 dark:text-white capitalize leading-tight break-words">
                             {exercise.exercise_name}
                         </h3>
-                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        
+                        {/* Meta tags */}
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
                             <span className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-xs text-slate-500 dark:text-slate-400 font-medium">
                                 <Timer className="w-3 h-3" /> {exercise.rest_seconds}s
                             </span>
