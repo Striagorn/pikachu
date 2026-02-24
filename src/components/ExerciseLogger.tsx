@@ -221,7 +221,7 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
                              <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 text-slate-200 dark:text-slate-700 group-hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all opacity-0 group-hover:opacity-100"
+                                className="h-7 w-7 text-purple-300 dark:text-purple-700 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
                                 onClick={() => handleDeleteSet(set.set_number)}
                              >
                                 <Trash2 className="w-3.5 h-3.5" />
