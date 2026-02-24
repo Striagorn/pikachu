@@ -115,7 +115,7 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
         <div className="space-y-4">
             {/* Header - Apple Style */}
             <div className="flex items-center justify-between mb-4 px-1">
-                <div className="flex items-start gap-4 flex-1 min-w-0">
+                <div className="flex items-start gap-4 flex-1">
                     {/* Exercise Image Thumbnail */}
                     {exercise.image_url && (
                         <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -127,8 +127,8 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
                         </div>
                     )}
 
-                    <div className="flex-1 min-w-0">
-                        <h3 className="text-[20px] md:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize leading-tight line-clamp-2 text-balance break-words">
+                    <div className="flex-1">
+                        <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight capitalize leading-tight">
                             {exercise.exercise_name}
                         </h3>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
