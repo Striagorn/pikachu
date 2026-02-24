@@ -171,13 +171,15 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                     </div>
                 ) : (
                     /* ─── SINGLE EXERCISE VIEW ─── */
-                    <ExerciseLogger
-                        logId={logId}
-                        exercise={currentSlide.exercises[0]}
-                        history={history.filter((h: any) => h.exercise_name === currentSlide.exercises[0].exercise_name)}
-                        previousLogs={previousLogs.filter((h: any) => h.exercise_name === currentSlide.exercises[0].exercise_name)}
-                        onCompleted={currentIndex < slides.length - 1 ? goNext : undefined}
-                    />
+                    <div className="pt-4">
+                        <ExerciseLogger
+                            logId={logId}
+                            exercise={currentSlide.exercises[0]}
+                            history={history.filter((h: any) => h.exercise_name === currentSlide.exercises[0].exercise_name)}
+                            previousLogs={previousLogs.filter((h: any) => h.exercise_name === currentSlide.exercises[0].exercise_name)}
+                            onCompleted={currentIndex < slides.length - 1 ? goNext : undefined}
+                        />
+                    </div>
                 )}
             </div>
         </div>
