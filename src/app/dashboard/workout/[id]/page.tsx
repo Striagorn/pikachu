@@ -74,7 +74,7 @@ export default async function WorkoutSessionPage(props: { params: Promise<{ id: 
     }
 
     return (
-      <div className="space-y-6 pb-20"> {/* pb-20 for sticky footer */}
+      <div className="-mt-6 pb-20"> {/* pb-20 for sticky footer, -mt-6 to close top padding gap gracefully */}
       <WorkoutCarousel
         logId={params.id}
         workoutName={log.workout?.name || 'Rutina'}

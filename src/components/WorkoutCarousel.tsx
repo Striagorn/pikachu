@@ -87,7 +87,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
             onTouchEnd={handleTouchEnd}
         >
             {/* Unified header: back button + workout name + progress dots */}
-            <div className="sticky top-14 md:top-0 z-10 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md pt-2 pb-4 -mt-6">
+            <div className="sticky top-14 md:top-0 z-10 bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md pt-2 pb-4 mb-4 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm">
                 {/* Back + Workout name row */}
                 <div className="flex items-center justify-center relative mb-2 min-h-6">
                     <button
