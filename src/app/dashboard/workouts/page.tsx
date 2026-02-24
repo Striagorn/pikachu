@@ -31,7 +31,10 @@ export default async function WorkoutsPage() {
                 Dale un nombre a la rutina para empezar a añadir ejercicios.
               </DialogDescription>
             </DialogHeader>
-            <form action={createWorkout}>
+            <form action={async (formData) => {
+              'use server'
+              await createWorkout(formData)
+            }}>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">Nombre</Label>
