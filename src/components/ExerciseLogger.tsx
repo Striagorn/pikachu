@@ -53,6 +53,13 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, persona
     // ✅ All planned sets completed
     const isExerciseComplete = sets.length >= maxSets
 
+    // 💡 Auto-progression: suggest +2.5kg if client hit all target reps
+    const targetReps = parseInt(exercise.reps?.split('-')[0] || '0', 10)
+    const allSetsHitTarget = isExerciseComplete && targetReps > 0 &&
+        sets.every((s: any) => s.reps >= targetReps)
+    const currentMaxWeight = sets.length > 0 ? Math.max(...sets.map((s: any) => Number(s.weight))) : 0
+    const suggestedNextWeight = currentMaxWeight > 0 ? currentMaxWeight + 2.5 : null
+
     async function handleSaveSet() {
         setIsSaving(true)
         
@@ -248,6 +255,19 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, persona
                             <p className="text-xs text-green-600 dark:text-green-500">{maxSets} series guardadas · Buen trabajo 💪</p>
                         </div>
                     </div>
+
+                    {/* Auto-progression suggestion */}
+                    {allSetsHitTarget && suggestedNextWeight && (
+                        <div className="mx-3 mb-3 flex items-start gap-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/30 rounded-xl px-3 py-2.5">
+                            <span className="text-base leading-none mt-0.5">📈</span>
+                            <div>
+                                <p className="text-[12px] font-bold text-amber-800 dark:text-amber-300">Listo para progresar</p>
+                                <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-0.5">
+                                    Completaste todas las series con los reps objetivo. La próxima sesión prueba con <strong>{suggestedNextWeight}kg</strong>.
+                                </p>
+                            </div>
+                        </div>
+                    )}
                     {onCompleted && (
                         <button
                             onClick={onCompleted}
