@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { PlayCircle, CheckCircle2, Calendar } from "lucide-react"
+import { PlayCircle, CheckCircle2, Calendar, Loader2 } from "lucide-react"
 import Link from 'next/link'
 import { startWorkoutSession } from '@/app/dashboard/actions'
 
@@ -16,9 +16,11 @@ interface ClientWeeklySwitcherProps {
 
 export function ClientWeeklySwitcher({ weekSchedule, todaysWorkout, todayDow }: ClientWeeklySwitcherProps) {
     const [selectedDow, setSelectedDow] = useState<number>(todayDow)
+    const [isPending, startTransition] = useTransition()
     const router = useRouter()
     const [touchStart, setTouchStart] = useState<number | null>(null)
     const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
 
     const minSwipeDistance = 50 
 
@@ -69,14 +71,17 @@ export function ClientWeeklySwitcher({ weekSchedule, todaysWorkout, todayDow }: 
         }
     }
 
-    const handleStartWorkout = async (formData: FormData) => {
-        const result = await startWorkoutSession(formData)
-        if (result?.id) {
-            router.push(`/dashboard/workout/${result.id}`)
-        } else if (result?.error) {
-            alert(result.error)
-        }
+    const handleStartWorkout = (formData: FormData) => {
+        startTransition(async () => {
+            const result = await startWorkoutSession(formData)
+            if (result?.id) {
+                router.push(`/dashboard/workout/${result.id}`)
+            } else if (result?.error) {
+                alert(result.error)
+            }
+        })
     }
+
 
     return (
         <div className="space-y-6">
@@ -168,8 +173,14 @@ export function ClientWeeklySwitcher({ weekSchedule, todaysWorkout, todayDow }: 
                             <div className="pl-2">
                                 <form action={handleStartWorkout}>
                                     <input type="hidden" name="workoutId" value={displayWorkout.workout_id || ''} />
-                                    <Button type="submit" className="w-full h-14 text-base font-bold rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]">
-                                        Comenzar {selectedDow !== todayDow ? 'Adelantada' : 'Rutina'}
+                                    <Button disabled={isPending} type="submit" className="w-full h-14 text-base font-bold rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]">
+                                        {isPending ? (
+                                            <div className="flex items-center gap-2">
+                                                <Loader2 className="w-5 h-5 animate-spin" /> Iniciando...
+                                            </div>
+                                        ) : (
+                                            `Comenzar ${selectedDow !== todayDow ? 'Adelantada' : 'Rutina'}`
+                                        )}
                                     </Button>
                                 </form>
                             </div>

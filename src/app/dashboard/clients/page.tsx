@@ -15,14 +15,22 @@ export default async function ClientsPage() {
         ? `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/join/${user.id}`
         : ''
 
-    // Fetch schedules for all clients
+    // Fetch schedules for all clients concurrently
     const schedules: Record<string, any[]> = {}
-    for (const client of clients) {
-        const clientId = (client as any).id
-        if (clientId) {
-            schedules[clientId] = await getClientSchedule(clientId)
+    const schedulePromises = clients.map(async (client: any) => {
+        if (client.id) {
+            const clientSchedule = await getClientSchedule(client.id)
+            return { id: client.id, schedule: clientSchedule }
         }
-    }
+        return null
+    })
+
+    const resolvedSchedules = await Promise.all(schedulePromises)
+    resolvedSchedules.forEach(item => {
+        if (item) {
+            schedules[item.id] = item.schedule
+        }
+    })
 
     return (
         <ClientList

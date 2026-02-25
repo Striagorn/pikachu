@@ -60,13 +60,14 @@ export function RoutinePicker({ workouts }: RoutinePickerProps) {
             const result = await startWorkoutSession(formData)
             if (result.error) {
                 alert(result.error)
+                setLoading(null)
                 return
             }
+            // Do not setLoading(null) on success to keep the spinner alive until page changes
             setDialogOpen(false)
             router.push(`/dashboard/workout/${result.id}`)
         } catch {
             alert('Error al iniciar la sesión')
-        } finally {
             setLoading(null)
         }
     }

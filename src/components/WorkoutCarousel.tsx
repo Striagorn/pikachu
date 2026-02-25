@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ExerciseLogger } from '@/components/ExerciseLogger'
 import { cn } from '@/lib/utils'
-import { ChevronLeft, Link2 } from 'lucide-react'
+import { ChevronLeft, Link2, Loader2 } from 'lucide-react'
 
 interface WorkoutCarouselProps {
     logId: string
@@ -17,6 +17,7 @@ interface WorkoutCarouselProps {
 
 export function WorkoutCarousel({ logId, workoutName, exercises, history, previousLogs, personalRecords = {} }: WorkoutCarouselProps) {
     const router = useRouter()
+    const [isPending, startTransition] = useTransition()
 
     // Build slides: group biseries exercises together into a single slide
     const slides = useMemo(() => {
@@ -92,13 +93,18 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                 {/* Back + Workout name row */}
                 <div className="flex items-center justify-center relative mb-2 min-h-6">
                     <button
-                        onClick={() => router.push('/dashboard')}
-                        className="hidden md:flex absolute left-0 items-center gap-0.5 text-primary font-medium text-sm active:opacity-60 transition-opacity"
+                        onClick={() => {
+                            startTransition(() => {
+                                router.push('/dashboard')
+                            })
+                        }}
+                        disabled={isPending}
+                        className="absolute left-0 flex items-center gap-0.5 text-primary font-medium text-sm active:opacity-60 transition-opacity disabled:opacity-50"
                     >
-                        <ChevronLeft className="h-5 w-5" />
+                        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ChevronLeft className="h-5 w-5 -ml-1" />}
                         <span>Volver</span>
                     </button>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] px-12 text-center line-clamp-1">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.18em] px-16 text-center line-clamp-1">
                         {workoutName}
                     </p>
                 </div>

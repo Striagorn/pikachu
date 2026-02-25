@@ -8,20 +8,23 @@ import { RoutinePicker } from "@/components/RoutinePicker"
 import { ClientWeeklySwitcher } from "@/components/ClientWeeklySwitcher"
 
 export default async function ClientView({ user }: { user: any }) {
-  const todaysWorkout: any = await getClientTodaysWorkout()
-  const history = await getClientHistory()
-  const weeklyProgress = await getWeeklyProgress()
-  const weeklyHistory = await getWeeklyHistory()
-  const subscription = await getClientSubscription()
-  const availableWorkouts = await getAvailableWorkouts()
-  const weekSchedule = await getClientWeekSchedule()
-  const streak = await getStreak()
-  const todayDow = new Date().getDay()
+  const [
+    todaysWorkout, history, weeklyProgress, weeklyHistory, 
+    subscription, availableWorkouts, weekSchedule, streak
+  ] = await Promise.all([
+    getClientTodaysWorkout(),
+    getClientHistory(),
+    getWeeklyProgress(),
+    getWeeklyHistory(),
+    getClientSubscription(),
+    getAvailableWorkouts(),
+    getClientWeekSchedule(),
+    getStreak()
+  ])
 
+  const todayDow = new Date().getDay()
   const progressPercentage = Math.min((weeklyProgress.count / weeklyProgress.goal) * 100, 100)
   const firstName = user.full_name?.split(' ')[0] || 'Atleta'
-
-  // Time-aware greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches'
 

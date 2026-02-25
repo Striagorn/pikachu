@@ -31,33 +31,40 @@ export async function getWorkoutSession(logId: string) {
 
     const workoutData = Array.isArray(log.workout) ? log.workout[0] : log.workout
 
-    // Get the Template Exercises — ONLY for this workout
-    const { data: exercises } = await supabase
-        .from('workout_exercises')
-        .select('*')
-        .eq('workout_id', workoutData.id)
-        .order('order_index', { ascending: true })
+    // Run the independent queries concurrently to save network roundtrip time
+    const [exercisesResult, exerciseLogsResult, lastLogResult] = await Promise.all([
+        // Get the Template Exercises — ONLY for this workout
+        supabase
+            .from('workout_exercises')
+            .select('*')
+            .eq('workout_id', workoutData.id)
+            .order('order_index', { ascending: true }),
 
-    // Get existing logs for this session to show what's done
-    const { data: exerciseLogs } = await supabase
-        .from('exercise_logs')
-        .select('*')
-        .eq('log_id', logId)
+        // Get existing logs for this session to show what's done
+        supabase
+            .from('exercise_logs')
+            .select('*')
+            .eq('log_id', logId),
 
-    // Get the Previous Session for History (excluding current log so re-entry works)
-    const { data: lastLog } = await supabase
-        .from('workout_logs')
-        .select('id')
-        .eq('client_id', user.id)
-        .eq('workout_id', workoutData.id)
-        .eq('status', 'completed')
-        .neq('id', logId)
-        .order('date', { ascending: false })
-        .limit(1)
-        .single()
+        // Get the Previous Session for History (excluding current log so re-entry works)
+        supabase
+            .from('workout_logs')
+            .select('id')
+            .eq('client_id', user.id)
+            .eq('workout_id', workoutData.id)
+            .eq('status', 'completed')
+            .neq('id', logId)
+            .order('date', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+    ])
+
+    const exercises = exercisesResult.data
+    const exerciseLogs = exerciseLogsResult.data
+    const lastLog = lastLogResult.data
 
     let previousLogs: any[] = []
-    if (lastLog) {
+    if (lastLog && lastLog.id) {
          const { data: prev } = await supabase
             .from('exercise_logs')
             .select('*')
@@ -203,8 +210,7 @@ export async function finishWorkout(formData: FormData) {
         })
         .eq('id', logId)
 
-    revalidatePath('/dashboard')
-    revalidatePath('/dashboard/workout/' + logId)
+    revalidatePath('/dashboard', 'layout')
     redirect('/dashboard')
 }
 
