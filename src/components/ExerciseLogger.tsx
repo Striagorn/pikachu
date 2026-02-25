@@ -16,10 +16,11 @@ interface ExerciseLoggerProps {
     exercise: any
     history: any[] // Current session logs
     previousLogs: any[] // Last session logs
+    personalRecord?: number // All-time max weight for this exercise
     onCompleted?: () => void // Callback to advance carousel
 }
 
-export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompleted }: ExerciseLoggerProps) {
+export function ExerciseLogger({ logId, exercise, history, previousLogs, personalRecord, onCompleted }: ExerciseLoggerProps) {
     // Sort history by set_number to ensure correct order
     const sortedHistory = [...history].sort((a, b) => a.set_number - b.set_number)
     
@@ -139,6 +140,12 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, onCompl
                             {exercise.target_weight && (
                                 <span className="text-xs font-semibold text-primary bg-primary/8 dark:bg-primary/15 px-2 py-0.5 rounded-md">
                                     Meta: {exercise.target_weight}
+                                </span>
+                            )}
+                            {/* Personal Record badge */}
+                            {personalRecord && (
+                                <span className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-md border border-amber-200/60 dark:border-amber-700/30">
+                                    🏆 PR: {personalRecord}kg
                                 </span>
                             )}
                             {/* Progress indicator */}

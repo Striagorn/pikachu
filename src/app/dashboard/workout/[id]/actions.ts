@@ -44,13 +44,14 @@ export async function getWorkoutSession(logId: string) {
         .select('*')
         .eq('log_id', logId)
 
-    // Get the Previous Session for History
+    // Get the Previous Session for History (excluding current log so re-entry works)
     const { data: lastLog } = await supabase
         .from('workout_logs')
         .select('id')
         .eq('client_id', user.id)
         .eq('workout_id', workoutData.id)
         .eq('status', 'completed')
+        .neq('id', logId)
         .order('date', { ascending: false })
         .limit(1)
         .single()
@@ -64,11 +65,32 @@ export async function getWorkoutSession(logId: string) {
          previousLogs = prev || []
     }
 
+    // Get Personal Records (all-time max weight per exercise)
+    const exerciseNames = (exercises || []).map((e: any) => e.exercise_name)
+    let personalRecords: Record<string, number> = {}
+    if (exerciseNames.length > 0) {
+        const { data: prData } = await supabase
+            .from('exercise_logs')
+            .select('exercise_name, weight, workout_logs!inner(client_id)')
+            .eq('workout_logs.client_id', user.id)
+            .in('exercise_name', exerciseNames)
+        
+        if (prData) {
+            for (const row of prData) {
+                const name = row.exercise_name
+                if (!personalRecords[name] || row.weight > personalRecords[name]) {
+                    personalRecords[name] = row.weight
+                }
+            }
+        }
+    }
+
     return {
         log: { ...log, workout: workoutData },
         exercises: exercises || [],
         history: exerciseLogs || [],
-        previousLogs
+        previousLogs,
+        personalRecords
     }
 }
 
@@ -181,6 +203,8 @@ export async function finishWorkout(formData: FormData) {
         })
         .eq('id', logId)
 
+    revalidatePath('/dashboard')
+    revalidatePath('/dashboard/workout/' + logId)
     redirect('/dashboard')
 }
 

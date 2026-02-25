@@ -81,6 +81,7 @@ export default async function WorkoutSessionPage(props: { params: Promise<{ id: 
         exercises={exercises}
         history={history}
         previousLogs={session.previousLogs}
+        personalRecords={session.personalRecords}
       />
 
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t z-40">

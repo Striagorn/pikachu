@@ -12,9 +12,10 @@ interface WorkoutCarouselProps {
     exercises: any[]
     history: any[]
     previousLogs: any[]
+    personalRecords?: Record<string, number>
 }
 
-export function WorkoutCarousel({ logId, workoutName, exercises, history, previousLogs }: WorkoutCarouselProps) {
+export function WorkoutCarousel({ logId, workoutName, exercises, history, previousLogs, personalRecords = {} }: WorkoutCarouselProps) {
     const router = useRouter()
 
     // Build slides: group biseries exercises together into a single slide
@@ -152,6 +153,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                                     exercise={exercise}
                                     history={history.filter((h: any) => h.exercise_name === exercise.exercise_name)}
                                     previousLogs={previousLogs.filter((h: any) => h.exercise_name === exercise.exercise_name)}
+                                    personalRecord={personalRecords[exercise.exercise_name]}
                                     onCompleted={
                                         i === currentSlide.exercises.length - 1 && currentIndex < slides.length - 1
                                             ? goNext
@@ -177,6 +179,7 @@ export function WorkoutCarousel({ logId, workoutName, exercises, history, previo
                             exercise={currentSlide.exercises[0]}
                             history={history.filter((h: any) => h.exercise_name === currentSlide.exercises[0].exercise_name)}
                             previousLogs={previousLogs.filter((h: any) => h.exercise_name === currentSlide.exercises[0].exercise_name)}
+                            personalRecord={personalRecords[currentSlide.exercises[0].exercise_name]}
                             onCompleted={currentIndex < slides.length - 1 ? goNext : undefined}
                         />
                     </div>
