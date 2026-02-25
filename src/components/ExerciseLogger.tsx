@@ -279,6 +279,8 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, persona
                             <label className="absolute top-2 left-0 w-full text-center text-[10px] font-black text-slate-400 uppercase tracking-wider z-10 pointer-events-none">Peso (kg)</label>
                             <Input 
                                 type="number" 
+                                inputMode="decimal"
+                                pattern="[0-9]*"
                                 value={weight} 
                                 onChange={(e) => setWeight(e.target.value)}
                                 className="h-16 pt-4 text-2xl text-center font-black bg-slate-50 dark:bg-black border-none shadow-none rounded-xl focus-visible:ring-1 focus-visible:ring-primary/30"
@@ -289,6 +291,8 @@ export function ExerciseLogger({ logId, exercise, history, previousLogs, persona
                             <label className="absolute top-2 left-0 w-full text-center text-[10px] font-black text-slate-400 uppercase tracking-wider z-10 pointer-events-none">Reps</label>
                             <Input 
                                 type="number" 
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 value={reps} 
                                 onChange={(e) => setReps(e.target.value)}
                                 className="h-16 pt-4 text-2xl text-center font-black bg-slate-50 dark:bg-black border-none shadow-none rounded-xl focus-visible:ring-1 focus-visible:ring-primary/30"
