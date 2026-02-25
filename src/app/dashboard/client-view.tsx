@@ -5,6 +5,7 @@ import { PlayCircle, CheckCircle2, Calendar, TrendingUp, AlertCircle, Trophy, Ba
 import Link from 'next/link'
 import { WorkoutSummaryDialog } from "@/components/WorkoutSummaryDialog"
 import { RoutinePicker } from "@/components/RoutinePicker"
+import { ClientWeeklySwitcher } from "@/components/ClientWeeklySwitcher"
 
 export default async function ClientView({ user }: { user: any }) {
   const todaysWorkout: any = await getClientTodaysWorkout()
@@ -112,89 +113,11 @@ export default async function ClientView({ user }: { user: any }) {
         </div>
       </div>
 
-      {/* ═══ MINI WEEK PREVIEW ═══ */}
-      {weekSchedule.length > 0 && (
-          <div className="px-4">
-              <div className="flex items-center justify-center gap-1.5">
-                  {['D','L','M','X','J','V','S'].map((label, i) => {
-                      const hasWorkout = weekSchedule.some((s: any) => s.day_of_week === i)
-                      const isToday = i === todayDow
-                      return (
-                          <div key={i} className="flex flex-col items-center gap-1">
-                              <span className={`text-[9px] font-bold uppercase ${isToday ? 'text-primary' : 'text-slate-400'}`}>{label}</span>
-                              <div className={`w-8 h-1.5 rounded-full transition-all ${
-                                  hasWorkout && isToday ? 'bg-primary shadow-sm shadow-primary/30' :
-                                  hasWorkout ? 'bg-violet-300 dark:bg-violet-700' :
-                                  'bg-slate-100 dark:bg-slate-800'
-                              }`} />
-                          </div>
-                      )
-                  })}
-              </div>
-          </div>
-      )}
-
-      {/* ═══ NEXT WORKOUT CARD ═══ */}
-      <div className="px-2">
-        {todaysWorkout ? (
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-[24px] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-none border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
-                <div className="flex items-start justify-between mb-4 pl-2">
-                    <div>
-                        <span className="text-xs font-bold text-primary uppercase tracking-wider mb-1 block">
-                            {todaysWorkout.status === 'scheduled' ? 'Programada para Hoy' : 'Siguiente Sesión'}
-                        </span>
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight">
-                            {Array.isArray(todaysWorkout.workout) ? todaysWorkout.workout[0]?.name : todaysWorkout.workout?.name}
-                        </h2>
-                        <p className="text-slate-500 text-sm mt-1">
-                            {Array.isArray(todaysWorkout.workout) 
-                                ? (Array.isArray(todaysWorkout.workout[0]?.trainer) ? todaysWorkout.workout[0]?.trainer[0]?.full_name : todaysWorkout.workout[0]?.trainer?.full_name) 
-                                : (Array.isArray(todaysWorkout.workout?.trainer) ? todaysWorkout.workout?.trainer[0]?.full_name : todaysWorkout.workout?.trainer?.full_name)}
-                        </p>
-                    </div>
-                    <div className={`p-3 rounded-full ${todaysWorkout.status === 'scheduled' ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600' : 'bg-primary/10 text-primary'}`}>
-                        {todaysWorkout.status === 'scheduled' ? <Calendar className="w-8 h-8" /> : <PlayCircle className="w-8 h-8" />}
-                    </div>
-                </div>
-                
-                <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 pl-2 line-clamp-2">
-                     {Array.isArray(todaysWorkout.workout) ? todaysWorkout.workout[0]?.description : todaysWorkout.workout?.description}
-                </p>
-
-                {todaysWorkout.id ? (
-                    <Link href={`/dashboard/workout/${todaysWorkout.id}`} className="block pl-2">
-                        <Button className="w-full h-14 text-base font-bold rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]">
-                            Continuar Rutina
-                        </Button>
-                    </Link>
-                ) : (
-                    <div className="pl-2">
-                        <form action={async () => {
-                            'use server'
-                            const { startWorkoutSession } = await import('./actions')
-                            const workoutId = Array.isArray(todaysWorkout.workout) ? todaysWorkout.workout[0]?.id : todaysWorkout.workout?.id
-                            if (workoutId) await startWorkoutSession(workoutId)
-                        }}>
-                            <Button type="submit" className="w-full h-14 text-base font-bold rounded-xl shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-[0.98]">
-                                Comenzar Rutina
-                            </Button>
-                        </form>
-                    </div>
-                )}
-            </div>
-        ) : (
-            <div className="bg-slate-50 dark:bg-slate-900/50 rounded-[24px] border-dashed border-2 border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center text-center">
-                <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-full mb-4">
-                    <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-                </div>
-                <h3 className="font-bold text-lg text-slate-900 dark:text-white">¡Día libre!</h3>
-                <p className="text-slate-500 text-sm mt-1 max-w-[200px]">
-                    No tienes rutinas programadas hoy. ¡Disfruta tu descanso!
-                </p>
-            </div>
-        )}
-      </div>
+      <ClientWeeklySwitcher 
+        weekSchedule={weekSchedule} 
+        todaysWorkout={todaysWorkout} 
+        todayDow={todayDow} 
+      />
 
       {/* ═══ ROUTINE PICKER — right after the main card ═══ */}
       <div className="px-2">
@@ -268,7 +191,7 @@ export default async function ClientView({ user }: { user: any }) {
         <h3 className="font-semibold text-xl text-slate-900 dark:text-white px-2 mb-3">Historial Reciente</h3>
         {history.length > 0 ? (
             <div className="space-y-3">
-                {history.map((log: any) => (
+                {history.slice(0, 5).map((log: any) => (
                      <div key={log.id} className="bg-white dark:bg-[#1C1C1E] rounded-[18px] p-4 shadow-sm border border-slate-100 dark:border-slate-800/50 flex items-center justify-between active:scale-[0.99] transition-transform">
                           <div className="flex items-center gap-3">
                               <div className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 p-2.5 rounded-full">
@@ -276,11 +199,11 @@ export default async function ClientView({ user }: { user: any }) {
                               </div>
                               <div>
                                   <h4 className="font-bold text-slate-900 dark:text-white text-sm">{log.workout?.name || 'Entrenamiento'}</h4>
-                                  <p className="text-xs text-slate-500">{new Date(log.finished_at).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+                                  <p className="text-xs text-slate-500 capitalize">{new Date(log.created_at || log.date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
                               </div>
                           </div>
                           <div className="text-right">
-                              <span className="text-sm font-bold text-slate-900 dark:text-white block">{log.duration_minutes || 45} min</span>
+                              <span className="text-sm font-bold text-slate-900 dark:text-white block">{log.rpe ? `RPE ${log.rpe}` : 'Completado'}</span>
                           </div>
                      </div>
                 ))}

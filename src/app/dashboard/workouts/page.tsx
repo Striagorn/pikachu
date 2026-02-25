@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Dumbbell, ChevronRight, Copy } from "lucide-react"
+import { Plus, Dumbbell, ChevronRight, Copy, Bookmark } from "lucide-react"
 import Link from 'next/link'
+import { WorkoutTemplateToggle } from '@/components/WorkoutTemplateToggle'
 
 export default async function WorkoutsPage() {
   const workouts = await getWorkouts()
@@ -66,57 +67,79 @@ export default async function WorkoutsPage() {
           </p>
         </div>
       ) : (
-        <div>
-          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest mb-2 px-1">
-            {workouts.length} {workouts.length === 1 ? 'rutina' : 'rutinas'}
-          </p>
-          <div className="bg-white dark:bg-white/[0.06] rounded-2xl border border-black/[0.06] dark:border-white/[0.06] divide-y divide-black/[0.04] dark:divide-white/[0.04] shadow-sm shadow-black/[0.04]">
-            {workouts.map((workout) => (
-              <div
-                key={workout.id}
-                className="flex items-center gap-3 px-4 py-3.5 hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors group"
-              >
-                {/* Icon badge */}
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
-                  <Dumbbell className="h-5 w-5 text-blue-500" strokeWidth={1.8} />
-                </div>
-
-                {/* Info */}
-                <Link href={`/dashboard/workouts/${workout.id}/edit`} className="flex-1 min-w-0">
-                  <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
-                    {workout.name}
-                  </p>
-                  {workout.description && (
-                    <p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">
-                      {workout.description}
-                    </p>
-                  )}
-                </Link>
-
-                {/* Duplicate button */}
-                <form action={async () => {
-                  'use server'
-                  await duplicateWorkout(workout.id)
-                }}>
-                  <button
-                    type="submit"
-                    title="Duplicar Rutina"
-                    className="h-8 w-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all active:scale-90 opacity-0 group-hover:opacity-100"
-                  >
-                    <Copy className="h-4 w-4" strokeWidth={1.8} />
-                  </button>
-                </form>
-
-                {/* Chevron */}
-                <Link href={`/dashboard/workouts/${workout.id}/edit`}>
-                  <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0 group-hover:text-gray-400 transition-colors" />
-                </Link>
+        <div className="space-y-8">
+          {workouts.filter(w => w.is_template).length > 0 && (
+            <div>
+              <p className="flex items-center gap-2 text-[11px] font-semibold text-amber-500 uppercase tracking-widest mb-2 px-1">
+                <Bookmark className="w-3.5 h-3.5" />
+                Rutinas Plantilla ({workouts.filter(w => w.is_template).length})
+              </p>
+              <div className="bg-white dark:bg-white/[0.06] rounded-2xl border border-amber-200 dark:border-amber-900/30 divide-y divide-black/[0.04] dark:divide-white/[0.04] shadow-sm shadow-amber-500/[0.03]">
+                {workouts.filter(w => w.is_template).map((workout) => (
+                  <WorkoutRow key={workout.id} workout={workout} />
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {workouts.filter(w => !w.is_template).length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest mb-2 px-1">
+                Rutinas Regulares ({workouts.filter(w => !w.is_template).length})
+              </p>
+              <div className="bg-white dark:bg-white/[0.06] rounded-2xl border border-black/[0.06] dark:border-white/[0.06] divide-y divide-black/[0.04] dark:divide-white/[0.04] shadow-sm shadow-black/[0.04]">
+                {workouts.filter(w => !w.is_template).map((workout) => (
+                  <WorkoutRow key={workout.id} workout={workout} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
 
+function WorkoutRow({ workout }: { workout: any }) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3.5 hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors group">
+      {/* Icon badge */}
+      <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+        <Dumbbell className="h-5 w-5 text-blue-500" strokeWidth={1.8} />
+      </div>
+
+      {/* Info */}
+      <Link href={`/dashboard/workouts/${workout.id}/edit`} className="flex-1 min-w-0">
+        <p className="text-[15px] font-semibold text-gray-900 dark:text-white truncate">
+          {workout.name}
+        </p>
+        {workout.description && (
+          <p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">
+            {workout.description}
+          </p>
+        )}
+      </Link>
+
+      <WorkoutTemplateToggle workoutId={workout.id} initialIsTemplate={workout.is_template} />
+
+      {/* Duplicate button */}
+      <form action={async () => {
+        'use server'
+        await duplicateWorkout(workout.id)
+      }}>
+        <button
+          type="submit"
+          title="Duplicar Rutina"
+          className="h-8 w-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all active:scale-90 opacity-0 group-hover:opacity-100"
+        >
+          <Copy className="h-4 w-4" strokeWidth={1.8} />
+        </button>
+      </form>
+
+      {/* Chevron */}
+      <Link href={`/dashboard/workouts/${workout.id}/edit`}>
+        <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0 group-hover:text-gray-400 transition-colors" />
+      </Link>
+    </div>
+  )
+}

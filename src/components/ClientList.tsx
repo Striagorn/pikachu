@@ -13,6 +13,8 @@ import { WeeklySchedule } from '@/components/WeeklySchedule'
 import { differenceInDays, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import { LineChart } from 'lucide-react'
 
 function getRetentionDot(lastDate: string | null) {
     if (!lastDate) return 'bg-gray-300 dark:bg-gray-600'
@@ -32,6 +34,7 @@ interface ClientListProps {
 
 export function ClientList({ clients, workouts, plans, schedules, inviteLink }: ClientListProps) {
     const [expandedClient, setExpandedClient] = useState<string | null>(null)
+    console.log('Rendering ClientList with buttons')
 
     return (
         <div className="space-y-6 max-w-4xl">
@@ -132,6 +135,15 @@ export function ClientList({ clients, workouts, plans, schedules, inviteLink }: 
 
                                         {/* Actions */}
                                         <div className="flex items-center gap-1 shrink-0">
+                                            {/* Progress / History */}
+                                            <Link
+                                                href={`/dashboard/clients/${client.id}/progress`}
+                                                title="Ver progreso"
+                                                className="h-8 w-8 rounded-xl flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all active:scale-90"
+                                            >
+                                                <LineChart className="h-4 w-4" strokeWidth={1.8} />
+                                            </Link>
+
                                             {/* Schedule Toggle */}
                                             <button
                                                 title="Plan Semanal"

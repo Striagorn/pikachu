@@ -122,11 +122,6 @@ export async function assignPlan(clientId: string, planId: string) {
     const endDate = new Date(startDate)
     endDate.setDate(startDate.getDate() + plan.validity_days)
 
-    // 3. Create Subscription
-    // Check if there is an active subscription? For now, we allow multiple or assume replacing.
-    // Let's just archive previous active ones? Or simple stack.
-    // MVP: Just insert new one.
-
     const { error } = await supabase
         .from('client_subscriptions')
         .insert({
@@ -229,4 +224,146 @@ export async function deleteScheduleEntry(id: string) {
     await supabase.from('workout_schedule').delete().eq('id', id)
     revalidatePath('/dashboard/clients')
     return { success: true }
+}
+
+// ═══ TRAINER FEEDBACK ═══
+
+export async function saveTrainerFeedback(logId: string, feedback: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autorizado' }
+    const { error } = await supabase
+        .from('workout_logs')
+        .update({ trainer_feedback: feedback })
+        .eq('id', logId)
+    if (error) return { error: 'Error al guardar feedback' }
+    revalidatePath('/dashboard/clients')
+    return { success: true }
+}
+
+// ═══ CLIENT PROGRESS ═══
+
+export async function getClientProgress(clientId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { recentSessions: [], personalRecords: [] }
+
+    const { data: sessions } = await supabase
+        .from('workout_logs')
+        .select(`
+            id, date, status, rpe, notes, trainer_feedback,
+            workout:workouts(name),
+            exercise_logs(exercise_name, weight, reps, set_number)
+        `)
+        .eq('client_id', clientId)
+        .eq('status', 'completed')
+        .order('date', { ascending: false })
+        .limit(10)
+
+    const { data: allLogs } = await supabase
+        .from('exercise_logs')
+        .select('exercise_name, weight, workout_logs!inner(client_id, date)')
+        .eq('workout_logs.client_id', clientId)
+
+    const prMap: Record<string, number> = {}
+    const rawHistory: Record<string, { date: string, weight: number }[]> = {}
+
+    if (allLogs) {
+        for (const row of allLogs) {
+            // Update PR
+            if (!prMap[row.exercise_name] || row.weight > prMap[row.exercise_name]) {
+                prMap[row.exercise_name] = row.weight
+            }
+
+            // Store raw history
+            if (!rawHistory[row.exercise_name]) {
+                rawHistory[row.exercise_name] = []
+            }
+            rawHistory[row.exercise_name].push({
+                date: (row as any).workout_logs.date,
+                weight: row.weight
+            })
+        }
+    }
+
+    // Map history to ExerciseHistoryChart format: [{ date: 'localeStr', sets: [{ weight: val }] }]
+    const historyMap: Record<string, any[]> = {}
+    for (const ex in rawHistory) {
+        // Find max weight per date
+        const dateMax: Record<string, number> = {}
+        for (const log of rawHistory[ex]) {
+            if (!dateMax[log.date] || log.weight > dateMax[log.date]) {
+                dateMax[log.date] = log.weight
+            }
+        }
+        
+        // Convert to array sorted by date descending like original getExerciseHistory
+        // ExerciseHistoryChart expects: { date: string, sets: [{weight: number}] } in reverse chronological order
+        historyMap[ex] = Object.entries(dateMax)
+            .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+            .map(([date, maxWeight]) => {
+                // Return in format expected by ExerciseHistoryChart
+                return {
+                    date: new Date(date).toLocaleDateString('es', { day: 'numeric', month: 'numeric' }),
+                    sets: [{ weight: maxWeight }]
+                }
+            })
+    }
+
+    const personalRecords = Object.entries(prMap)
+        .map(([exercise, weight]) => ({ 
+            exercise, 
+            weight,
+            history: historyMap[exercise] || []
+        }))
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 12)
+
+    return { recentSessions: sessions || [], personalRecords }
+}
+
+// ═══ WORKOUT TEMPLATES ═══
+
+export async function toggleWorkoutTemplate(workoutId: string, isTemplate: boolean) {
+    const supabase = await createClient()
+    const { error } = await supabase
+        .from('workouts')
+        .update({ is_template: isTemplate })
+        .eq('id', workoutId)
+    if (error) return { error: 'Error al actualizar plantilla' }
+    revalidatePath('/dashboard/workouts')
+    return { success: true }
+}
+
+export async function cloneWorkoutForClient(workoutId: string, clientId: string, newName: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'No autorizado' }
+
+    const { data: original } = await supabase
+        .from('workouts')
+        .select('*, workout_exercises(*)')
+        .eq('id', workoutId)
+        .single()
+    if (!original) return { error: 'Rutina no encontrada' }
+
+    const { data: cloned, error: cloneError } = await supabase
+        .from('workouts')
+        .insert({ trainer_id: user.id, client_id: clientId, name: newName, description: original.description, is_template: false })
+        .select()
+        .single()
+    if (cloneError || !cloned) return { error: 'Error al clonar rutina' }
+
+    if (original.workout_exercises?.length > 0) {
+        const exercises = original.workout_exercises.map((ex: any) => ({
+            workout_id: cloned.id, exercise_name: ex.exercise_name, sets: ex.sets, reps: ex.reps,
+            rest_seconds: ex.rest_seconds, order_index: ex.order_index, target_weight: ex.target_weight,
+            trainer_notes: ex.trainer_notes
+        }))
+        await supabase.from('workout_exercises').insert(exercises)
+    }
+
+    revalidatePath('/dashboard/workouts')
+    revalidatePath('/dashboard/clients')
+    return { success: true, workoutId: cloned.id }
 }

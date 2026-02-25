@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 
 export async function getClientTodaysWorkout() {
   const supabase = await createClient()
@@ -30,13 +31,37 @@ export async function getClientTodaysWorkout() {
     .limit(1)
     .single()
 
-  if (existingLog) return existingLog
+  // 1.5. Check if there is already a COMPLETED workout log for today
+  const today = new Date()
+  const offset = today.getTimezoneOffset() * 60000
+  const localToday = new Date(today.getTime() - offset)
+  const todayStr = localToday.toISOString().split('T')[0] // YYYY-MM-DD local
+  const dayOfWeek = localToday.getDay() // 0=Sun...6=Sat local
+
+  const { data: completedLogToday } = await supabase
+    .from('workout_logs')
+    .select(`
+      id,
+      status,
+      created_at,
+      workout:workouts (
+        id,
+        name,
+        description,
+        trainer:profiles (
+            full_name
+        )
+      )
+    `)
+    .eq('client_id', user.id)
+    .eq('status', 'completed')
+    .ilike('date', `${todayStr}%`) // The 'date' column in workout_logs stores the Date string, or we can use created_at starting with todayStr
+    .limit(1)
+    .single()
+
+  if (completedLogToday) return completedLogToday
 
   // 2. Check workout_schedule for today
-  const today = new Date()
-  const dayOfWeek = today.getDay() // 0=Sun...6=Sat
-  const todayStr = today.toISOString().split('T')[0] // YYYY-MM-DD
-
   // Check specific_date first
   const { data: specificEntry } = await supabase
     .from('workout_schedule')
@@ -66,7 +91,7 @@ export async function getClientTodaysWorkout() {
     return {
       id: null, // no log yet — will be created when client starts
       status: 'scheduled',
-      created_at: today.toISOString(),
+      created_at: localToday.toISOString(),
       workout: recurringEntry.workout,
       workout_id: recurringEntry.workout_id,
     }
@@ -75,14 +100,14 @@ export async function getClientTodaysWorkout() {
   return {
     id: null,
     status: 'scheduled',
-    created_at: today.toISOString(),
+    created_at: localToday.toISOString(),
     workout: scheduledWorkout,
     workout_id: specificEntry.workout_id,
   }
 }
 
 /**
- * Get the client's weekly schedule for the mini preview
+ * Get the client's weekly schedule for the mini preview and day switcher
  */
 export async function getClientWeekSchedule() {
   const supabase = await createClient()
@@ -91,7 +116,7 @@ export async function getClientWeekSchedule() {
 
   const { data } = await supabase
     .from('workout_schedule')
-    .select('day_of_week, is_recurring, workout:workouts(name)')
+    .select('day_of_week, is_recurring, workout:workouts(id, name, description, trainer:profiles(full_name))')
     .eq('client_id', user.id)
     .eq('is_recurring', true)
     .order('day_of_week', { ascending: true })
@@ -117,18 +142,19 @@ export async function getStreak() {
 
   if (!data || data.length === 0) return { streak: 0, total: data?.length || 0 }
 
-  // Get unique dates
-  const uniqueDates = [...new Set(data.map(d => new Date(d.date).toISOString().split('T')[0]))]
+  // Get unique dates (assuming d.date is YYYY-MM-DD or ISO string)
+  const uniqueDates = [...new Set(data.map(d => d.date.split('T')[0]))]
     .sort((a, b) => b.localeCompare(a))
 
-  // Count consecutive days from today/yesterday
+  // Count consecutive days from today/yesterday (using local timezone)
   const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
+  const offset = today.getTimezoneOffset() * 60000
+  const localToday = new Date(today.getTime() - offset)
+  const todayStr = localToday.toISOString().split('T')[0]
 
-  const todayStr = today.toISOString().split('T')[0]
-  const yesterdayStr = yesterday.toISOString().split('T')[0]
+  const yesterday = new Date(today.getTime() - 86400000)
+  const localYesterday = new Date(yesterday.getTime() - offset)
+  const yesterdayStr = localYesterday.toISOString().split('T')[0]
 
   // Streak must start from today or yesterday
   if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterdayStr) {
@@ -137,9 +163,9 @@ export async function getStreak() {
 
   let streak = 1
   for (let i = 1; i < uniqueDates.length; i++) {
-    const prev = new Date(uniqueDates[i - 1])
-    const curr = new Date(uniqueDates[i])
-    const diffDays = (prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24)
+    const prev = new Date(uniqueDates[i - 1] + 'T00:00:00')
+    const curr = new Date(uniqueDates[i] + 'T00:00:00')
+    const diffDays = Math.round((prev.getTime() - curr.getTime()) / 86400000)
     if (diffDays === 1) {
       streak++
     } else {
@@ -163,6 +189,7 @@ export async function getClientHistory() {
       status,
       created_at,
       date,
+      rpe,
       workout:workouts (
         name,
         trainer:profiles (full_name)
